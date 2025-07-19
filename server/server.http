@@ -1,0 +1,16 @@
+﻿@server_HostAddress = https://localhost:5255
+
+POST {{server_HostAddress}}/api/categories
+Content-Type: application/json
+
+{
+  "name": "Faculdade"
+}
+###
+
+POST {{server_HostAddress}}/api/categories
+{
+  "name": "Faculdade"
+}
+
+###
