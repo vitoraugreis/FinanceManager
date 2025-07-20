@@ -36,8 +36,12 @@ app.MapGet("/api/categories", (ApiDbContext context) =>
 });
 
 // Cria uma nova categoria.
-app.MapPost("/api/categories", (ApiDbContext context, CreateCategoryDto category) =>
+app.MapPost("/api/categories", async (ApiDbContext context, CreateCategoryDto category) =>
 {
+    // Verifica se já existe categoria com o mesmo nome informado.
+    if (await context.Categories.AnyAsync(c => c.Name.ToLower() == category.Name.ToLower()))
+        return Results.Conflict("Uma categoria com este nome já existe.");
+
     var newCategory = new Category
     {
         Name = category.Name

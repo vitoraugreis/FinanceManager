@@ -4,8 +4,10 @@ import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
-    const [categories, setCategories] = useState([])
-    const [newCategoryName, setNewCategoryName] = useState('')
+    const [categories, setCategories] = useState([]);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [error, setError] = useState(null);
+
     useEffect(() => {
         fetch('http://localhost:5255/api/categories')
         .then(res => res.json())
@@ -18,20 +20,32 @@ function App() {
         event.preventDefault();
 
         // Objeto com os dados que a API espera.
-        const categoryData = {
-            name: newCategoryName
-        };
+        const categoryData = {name: newCategoryName};
 
         fetch('http://localhost:5255/api/categories', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(categoryData),
         })
-        .then(response => response.json())
-        .then(newlyCreatedCategory => {
-            // Adiciona a nova categoria à lista existente na tela.
-            setCategories(currentCategories => [...currentCategories, newlyCreatedCategory]);
-            setNewCategoryName('');
+        .then(async (response) => {
+            if (response.ok) {
+                const newlyCreatedCategory = await response.json();
+                setCategories(currentCategories => [...currentCategories, newlyCreatedCategory]);
+                setNewCategoryName('');
+                setError(null);
+            } else if (response.status == 409) {
+                // Erro de conflito.
+                const errorMessage = await response.text(); 
+                setError(errorMessage);
+            } else {
+                // Outros erros.
+                setError('Ocorreu um erro ao criar a categoria.');
+            }
+        })
+        .catch(networkError => {
+            // Erros de rede.
+            setError('Não foi possível conectar ao servidor.');
+            console.error('Erro de rede:', networkError);
         });
     };
 
@@ -47,6 +61,8 @@ function App() {
             />
             <button type="submit">Adicionar</button>
         </form>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+
         <hr/>
         <ul>
         {
