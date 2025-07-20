@@ -52,4 +52,19 @@ app.MapPost("/api/categories", async (ApiDbContext context, CreateCategoryDto ca
     return Results.Created($"/api/categories/{newCategory.Id}", newCategory);
 });
 
+// Deleta uma categoria.
+app.MapDelete("/api/categories/{id:int}", async (ApiDbContext context, int id) =>
+{
+    var categoryToDelete = await context.Categories.FindAsync(id);
+
+    if (categoryToDelete == null)
+        return Results.NotFound();
+
+    context.Categories.Remove(categoryToDelete);
+    await context.SaveChangesAsync();
+
+    // Retorna Status 204 -> Delete bem sucedido.
+    return Results.NoContent();
+});
+
 app.Run();

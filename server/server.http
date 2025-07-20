@@ -14,3 +14,5 @@ POST {{server_HostAddress}}/api/categories
 }
 
 ###
+
+DELETE {{server_HostAddress}}/api/categories/1

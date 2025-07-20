@@ -49,6 +49,22 @@ function App() {
         });
     };
 
+    const handleDelete = (idToDelete) => {
+        fetch(`http://localhost:5255/api/categories/${idToDelete}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                // Cria um novo array contendo apenas as categorias que permanecem no sistema.
+                setCategories(currentCategories =>
+                    currentCategories.filter(category => category.id !== idToDelete)
+                );
+            } else {
+                alert('Não foi possível remover a categoria.');rt
+            }
+        });
+    };
+
     return (
     <div>
         <h1>Categorias</h1>
@@ -67,7 +83,10 @@ function App() {
         <ul>
         {
             categories.map(category => (
-                <li key={category.id}>{category.name}</li>
+                <li key={category.id}>
+                    {category.name}
+                    <button onClick={() => handleDelete(category.id)}>Remover</button>
+                </li>
             ))
         }
         </ul>
