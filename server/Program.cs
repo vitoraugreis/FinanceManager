@@ -29,9 +29,9 @@ app.UseSwaggerUI();
 app.UseCors("MyPolicy");
 
 // Pega todas as linhas da tabela Categories e retorna no formato de lista.
-app.MapGet("/api/categories", (ApiDbContext context) =>
+app.MapGet("/api/categories", async (ApiDbContext context) =>
 {
-    var categories = context.Categories.ToList();
+    var categories = await context.Categories.ToListAsync();
     return Results.Ok(categories);
 });
 
@@ -46,8 +46,9 @@ app.MapPost("/api/categories", async (ApiDbContext context, CreateCategoryDto ca
     {
         Name = category.Name
     };
+
     context.Categories.Add(newCategory);
-    context.SaveChanges();
+    await context.SaveChangesAsync();
 
     return Results.Created($"/api/categories/{newCategory.Id}", newCategory);
 });
@@ -65,6 +66,34 @@ app.MapDelete("/api/categories/{id:int}", async (ApiDbContext context, int id) =
 
     // Retorna Status 204 -> Delete bem sucedido.
     return Results.NoContent();
+});
+
+app.MapGet("/api/accounts", async (ApiDbContext context) =>
+{
+    var accounts = await context.Accounts.ToListAsync();
+    return Results.Ok(accounts);
+});
+
+app.MapPost("/api/accounts", async (ApiDbContext context, CreateAccountDto account) =>
+{
+    // Verifica se já existe conta com o mesmo nome informado.
+    if (await context.Accounts.AnyAsync(a => a.Name.ToLower() == account.Name.ToLower()))
+        return Results.Conflict("Uma conta com este nome já existe.");
+
+    var newAccount = new Account
+    {
+        Name = account.Name,
+        Description = account.Description,
+        Type = account.Type,
+        InitialBalance = account.InitialBalance,
+        ClosingDay = account.ClosingDay,
+        DueDay = account.DueDay
+    };
+
+    context.Accounts.Add(newAccount);
+    await context.SaveChangesAsync();
+
+    return Results.Created($"/api/accounts/{newAccount.Id}", newAccount);
 });
 
 app.Run();
