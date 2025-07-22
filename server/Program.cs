@@ -68,12 +68,14 @@ app.MapDelete("/api/categories/{id:int}", async (ApiDbContext context, int id) =
     return Results.NoContent();
 });
 
+// Retorna todas as contas criadas.
 app.MapGet("/api/accounts", async (ApiDbContext context) =>
 {
     var accounts = await context.Accounts.ToListAsync();
     return Results.Ok(accounts);
 });
 
+// Cria uma nova conta.
 app.MapPost("/api/accounts", async (ApiDbContext context, CreateAccountDto account) =>
 {
     // Verifica se já existe conta com o mesmo nome informado.
