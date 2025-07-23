@@ -98,4 +98,18 @@ app.MapPost("/api/accounts", async (ApiDbContext context, CreateAccountDto accou
     return Results.Created($"/api/accounts/{newAccount.Id}", newAccount);
 });
 
+app.MapDelete("/api/accounts/{id:int}", async (ApiDbContext context, int id) =>
+{
+    var accountToDelete = await context.Accounts.FindAsync(id);
+
+    if (accountToDelete == null)
+        return Results.NotFound();
+
+    context.Accounts.Remove(accountToDelete);
+    await context.SaveChangesAsync();
+
+    // Retorna Status 204 -> Delete bem sucedido.
+    return Results.NoContent();
+});
+
 app.Run();

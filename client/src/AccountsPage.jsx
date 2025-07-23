@@ -75,6 +75,25 @@ function AccountsPage() {
         });
     }
 
+    const AccountDelete = (idToDelete) => {
+        // Confirmação de intenção de remover a conta.
+        if (!window.confirm("Tem certeza que deseja remover esta conta?")) return;
+
+        fetch(`http://localhost:5255/api/accounts/${idToDelete}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                // Cria um novo array contendo apenas as contas que permanecem no sistema.
+                setAccounts(currentAccounts =>
+                    currentAccounts.filter(account => account.id !== idToDelete)
+                );
+            } else {
+                alert('Não foi possível remover a categoria.');rt
+            }
+        });
+    }
+
     return (
     <div>
         <h2>Minhas Contas</h2>
@@ -147,6 +166,7 @@ function AccountsPage() {
                   <th>Nome</th>
                   <th>Tipo</th>
                   <th>Saldo Inicial</th>
+                  <th>Ações</th>
                 </tr>
             </thead>
           <tbody>
@@ -155,6 +175,7 @@ function AccountsPage() {
                     <td>{account.name}</td>
                     <td>{account.type === 0 ? 'Débito' : 'Crédito'}</td>
                     <td>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(account.initialBalance)}</td>
+                    <td><button onClick={() => AccountDelete(account.id)}>Remover</button></td>
                 </tr>
             ))}
             </tbody>
