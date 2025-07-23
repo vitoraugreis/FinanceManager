@@ -98,6 +98,7 @@ app.MapPost("/api/accounts", async (ApiDbContext context, CreateAccountDto accou
     return Results.Created($"/api/accounts/{newAccount.Id}", newAccount);
 });
 
+// Deleta conta existente.
 app.MapDelete("/api/accounts/{id:int}", async (ApiDbContext context, int id) =>
 {
     var accountToDelete = await context.Accounts.FindAsync(id);
@@ -110,6 +111,42 @@ app.MapDelete("/api/accounts/{id:int}", async (ApiDbContext context, int id) =>
 
     // Retorna Status 204 -> Delete bem sucedido.
     return Results.NoContent();
+});
+
+// Lista todas as transações.
+app.MapGet("/api/transactions", async (ApiDbContext context) =>
+{
+    var transactions = await context.Transactions
+                                    .Include(t => t.Account)
+                                    .Include(t => t.Category)
+                                    .ToListAsync();
+    return Results.Ok(transactions);
+});
+
+// Cria uma nova transação.
+app.MapPost("/api/transactions", async (ApiDbContext context, CreateTransactionDto transaction) =>
+{
+    var accountExist = await context.Accounts.AnyAsync(a => a.Id == transaction.AccountId);
+    var categoryExist = await context.Categories.AnyAsync(c => c.Id == transaction.CategoryId);
+    if (!accountExist)
+        return Results.BadRequest("A conta informada não existe.");
+    if (!categoryExist)
+        return Results.BadRequest("A categoria informada não existe.");
+
+    var newTransaction = new Transaction
+    {
+        Name = transaction.Name,
+        Description = transaction.Description,
+        Amount = transaction.Amount,
+        Date = transaction.Date,
+        Type = transaction.Type,
+        AccountId = transaction.AccountId,
+        CategoryId = transaction.CategoryId
+    };
+    context.Transactions.Add(newTransaction);
+    await context.SaveChangesAsync();
+
+    return Results.Created($"/api/transactions/{newTransaction.Id}", newTransaction);
 });
 
 app.Run();
