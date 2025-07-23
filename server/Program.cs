@@ -138,7 +138,7 @@ app.MapPost("/api/transactions", async (ApiDbContext context, CreateTransactionD
         Name = transaction.Name,
         Description = transaction.Description,
         Amount = transaction.Amount,
-        Date = transaction.Date,
+        Date = transaction.Date.ToUniversalTime(),
         Type = transaction.Type,
         AccountId = transaction.AccountId,
         CategoryId = transaction.CategoryId
