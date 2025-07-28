@@ -98,6 +98,23 @@ function TransactionsPage() {
         });
     }
 
+    const TransactionDelete = (idToDelete) => {
+        if (!window.confirm("Tem certeza que deseja remover esta transação?")) return;
+
+        fetch(`http://localhost:5255/api/transactions/${idToDelete}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                setTransactions(currentTransactions =>
+                    currentTransactions.filter(transaction => transaction.id !== idToDelete)
+                );
+            } else {
+                alert('Não foi possível remover a categoria.');rt
+            }
+        });
+    }
+
     return (
         <div>
             <h2>Transações</h2>
@@ -180,6 +197,7 @@ function TransactionsPage() {
                         <th>Categoria</th>
                         <th>Valor</th>
                         <th>Data</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -192,6 +210,9 @@ function TransactionsPage() {
                                 {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(transaction.amount)}
                             </td>
                             <td>{new Date(transaction.date).toLocaleDateString('pt-BR')}</td>
+                            <td>
+                                <button onClick={() => TransactionDelete(transaction.id)}>Remover</button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>

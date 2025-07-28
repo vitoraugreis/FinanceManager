@@ -38,9 +38,9 @@ app.MapGet("/api/categories", async (ApiDbContext context) =>
 // Cria uma nova categoria.
 app.MapPost("/api/categories", async (ApiDbContext context, CreateCategoryDto category) =>
 {
-    // Verifica se j· existe categoria com o mesmo nome informado.
+    // Verifica se j√° existe categoria com o mesmo nome informado.
     if (await context.Categories.AnyAsync(c => c.Name.ToLower() == category.Name.ToLower()))
-        return Results.Conflict("Uma categoria com este nome j· existe.");
+        return Results.Conflict("Uma categoria com este nome j√° existe.");
 
     var newCategory = new Category
     {
@@ -78,9 +78,9 @@ app.MapGet("/api/accounts", async (ApiDbContext context) =>
 // Cria uma nova conta.
 app.MapPost("/api/accounts", async (ApiDbContext context, CreateAccountDto account) =>
 {
-    // Verifica se j· existe conta com o mesmo nome informado.
+    // Verifica se j√° existe conta com o mesmo nome informado.
     if (await context.Accounts.AnyAsync(a => a.Name.ToLower() == account.Name.ToLower()))
-        return Results.Conflict("Uma conta com este nome j· existe.");
+        return Results.Conflict("Uma conta com este nome j√° existe.");
 
     var newAccount = new Account
     {
@@ -113,7 +113,7 @@ app.MapDelete("/api/accounts/{id:int}", async (ApiDbContext context, int id) =>
     return Results.NoContent();
 });
 
-// Lista todas as transaÁıes.
+// Lista todas as transa√ß√µes.
 app.MapGet("/api/transactions", async (ApiDbContext context) =>
 {
     var transactions = await context.Transactions
@@ -123,15 +123,15 @@ app.MapGet("/api/transactions", async (ApiDbContext context) =>
     return Results.Ok(transactions);
 });
 
-// Cria uma nova transaÁ„o.
+// Cria uma nova transa√ß√£o.
 app.MapPost("/api/transactions", async (ApiDbContext context, CreateTransactionDto transaction) =>
 {
     var accountExist = await context.Accounts.AnyAsync(a => a.Id == transaction.AccountId);
     var categoryExist = await context.Categories.AnyAsync(c => c.Id == transaction.CategoryId);
     if (!accountExist)
-        return Results.BadRequest("A conta informada n„o existe.");
+        return Results.BadRequest("A conta informada n√£o existe.");
     if (!categoryExist)
-        return Results.BadRequest("A categoria informada n„o existe.");
+        return Results.BadRequest("A categoria informada n√£o existe.");
 
     var newTransaction = new Transaction
     {
@@ -147,6 +147,18 @@ app.MapPost("/api/transactions", async (ApiDbContext context, CreateTransactionD
     await context.SaveChangesAsync();
 
     return Results.Created($"/api/transactions/{newTransaction.Id}", newTransaction);
+});
+
+app.MapDelete("api/transactions/{id:int}", async (ApiDbContext context, int id) =>
+{
+    var transactionToDelete = await context.Transactions.FindAsync(id);
+    if (transactionToDelete is null)
+        return Results.NotFound("A transa√ß√£o informada n√£o existe.");
+
+    context.Transactions.Remove(transactionToDelete);
+    await context.SaveChangesAsync();
+
+    return Results.NoContent();
 });
 
 app.Run();
