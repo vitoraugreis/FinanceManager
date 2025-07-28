@@ -1,4 +1,3 @@
-#!/bin/bash
 # Este script inicia o back-end e o front-end, cada um em sua própria janela de terminal.
 
 gnome-terminal --title="Back-end API" -- bash -c "echo 'Iniciando Back-end...'; cd server && dotnet run; exec bash"

@@ -161,4 +161,51 @@ app.MapDelete("api/transactions/{id:int}", async (ApiDbContext context, int id) 
     return Results.NoContent();
 });
 
+app.MapGet("api/dashboard/summary", async (ApiDbContext context, int year, int month, int? accountId) =>
+{
+    var query = context.Transactions.Where(t => t.Date.Year == year && t.Date.Month == month);
+    if (accountId.HasValue)
+        query = query.Where(t => t.AccountId == accountId);
+
+    var expensesByCategory = await query
+                                    .Where(t => t.Type == TransactionType.Expense)
+                                    .GroupBy(t => new { t.CategoryId, t.Category.Name })
+                                    .Select(g => new CategorySummaryDto
+                                    {
+                                        CategoryId = g.Key.CategoryId,
+                                        CategoryName = g.Key.Name,
+                                        TotalAmount = g.Sum(t => t.Amount)
+                                    })
+                                    .ToListAsync();
+
+    var incomesByCategory = await query
+                                    .Where(t => t.Type == TransactionType.Income)
+                                    .GroupBy(t => new { t.CategoryId, t.Category.Name })
+                                    .Select(g => new CategorySummaryDto
+                                    {
+                                        CategoryId = g.Key.CategoryId,
+                                        CategoryName = g.Key.Name,
+                                        TotalAmount = g.Sum(t => t.Amount)
+                                    })
+                                    .ToListAsync();
+
+    var totalExpenses = await query
+                                .Where(t => t.Type == TransactionType.Expense)
+                                .SumAsync(t => t.Amount);
+
+    var totalIncomes = await query
+                                .Where(t => t.Type == TransactionType.Income)
+                                .SumAsync(t => t.Amount);
+
+    var summary = new DashboardSummaryDto
+    {
+        TotalExpenses = totalExpenses,
+        TotalIncomes = totalIncomes,
+        ExpensesByCategory = expensesByCategory,
+        IncomesByCategory = incomesByCategory
+    };
+
+    return Results.Ok(summary);
+});
+
 app.Run();
