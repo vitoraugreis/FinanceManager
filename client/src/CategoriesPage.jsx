@@ -4,6 +4,7 @@ import './App.css'
 function CategoriesPage() {
     const [categories, setCategories] = useState([]);
     const [newCategoryName, setNewCategoryName] = useState('');
+    const [newCategoryColor, setNewCategoryColor] = useState("#1cba34");
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -18,7 +19,7 @@ function CategoriesPage() {
         event.preventDefault();
 
         // Objeto com os dados que a API espera.
-        const categoryData = {name: newCategoryName};
+        const categoryData = {name: newCategoryName, color: newCategoryColor};
 
         fetch('http://localhost:5255/api/categories', {
             method: 'POST',
@@ -67,12 +68,22 @@ function CategoriesPage() {
     <div>
         <h1>Categorias</h1>
         <form onSubmit={handleSubmit}>
-            <input 
-                type="text"
-                placeholder="Nome da nova categoria"
-                value={newCategoryName}
-                onChange={e => setNewCategoryName(e.target.value)}
-            />
+            <div>
+                <label>Nome da nova categoria:</label>
+                <input 
+                    type="text"
+                    value={newCategoryName}
+                    onChange={e => setNewCategoryName(e.target.value)}
+                />
+            </div>
+            <div>
+                <label>Cor da categoria:</label>
+                <input
+                    type='color'
+                    value={newCategoryColor}
+                    onChange={e => setNewCategoryColor(e.target.value)}
+                />
+            </div>
             <button type="submit">Adicionar</button>
         </form>
         {error && <p style={{ color: 'red' }}>{error}</p>}

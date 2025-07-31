@@ -44,7 +44,8 @@ app.MapPost("/api/categories", async (ApiDbContext context, CreateCategoryDto ca
 
     var newCategory = new Category
     {
-        Name = category.Name
+        Name = category.Name,
+        Color = category.Color
     };
 
     context.Categories.Add(newCategory);
@@ -169,22 +170,24 @@ app.MapGet("api/dashboard/summary", async (ApiDbContext context, int year, int m
 
     var expensesByCategory = await query
                                     .Where(t => t.Type == TransactionType.Expense)
-                                    .GroupBy(t => new { t.CategoryId, t.Category.Name })
+                                    .GroupBy(t => new { t.CategoryId, t.Category.Name, t.Category.Color })
                                     .Select(g => new CategorySummaryDto
                                     {
                                         CategoryId = g.Key.CategoryId,
                                         CategoryName = g.Key.Name,
+                                        CategoryColor = g.Key.Color,
                                         TotalAmount = g.Sum(t => t.Amount)
                                     })
                                     .ToListAsync();
 
     var incomesByCategory = await query
                                     .Where(t => t.Type == TransactionType.Income)
-                                    .GroupBy(t => new { t.CategoryId, t.Category.Name })
+                                    .GroupBy(t => new { t.CategoryId, t.Category.Name, t.Category.Color })
                                     .Select(g => new CategorySummaryDto
                                     {
                                         CategoryId = g.Key.CategoryId,
                                         CategoryName = g.Key.Name,
+                                        CategoryColor = g.Key.Color,
                                         TotalAmount = g.Sum(t => t.Amount)
                                     })
                                     .ToListAsync();
